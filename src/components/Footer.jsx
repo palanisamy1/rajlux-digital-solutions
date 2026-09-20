@@ -9,7 +9,7 @@ export default function Footer() {
           {/* Column 1: Studio Identity */}
           <div>
             <div className="footer-brand-wrap">
-              <img src="logo.png" alt="Rajlux Digital Solutions" className="footer-brand-logo" />
+              <img src="/logo-emblem.png" alt="Rajlux Digital Solutions" className="footer-brand-logo" />
               <span className="footer-brand-title">Rajlux Digital Solutions Pvt. Ltd.</span>
             </div>
             <p className="footer-brand-desc">
