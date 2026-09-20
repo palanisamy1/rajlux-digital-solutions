@@ -1,159 +1,282 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Menu, X, Phone, Mail } from 'lucide-react';
+import { ChevronDown, ArrowRight, Phone, Mail, Globe, Smartphone, Cloud, ShoppingBag, Palette, BarChart3 } from 'lucide-react';
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState('home');
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState(null); // 'solutions' | 'company' | null
+  const headerRef = useRef(null);
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 30);
-
-      const sections = ['home', 'about', 'services', 'why-us', 'process', 'portfolio', 'contact'];
-      for (const sectionId of sections) {
-        const el = document.getElementById(sectionId);
-        if (el) {
-          const rect = el.getBoundingClientRect();
-          if (rect.top <= 140 && rect.bottom >= 140) {
-            setActiveSection(sectionId);
-            break;
-          }
-        }
-      }
+      setScrolled(window.scrollY > 20);
     };
-
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const navLinks = [
-    { name: 'Services', href: '#services', id: 'services', hasDropdown: true },
-    { name: 'About', href: '#about', id: 'about' },
-    { name: 'Why Us', href: '#why-us', id: 'why-us' },
-    { name: 'Methodology', href: '#process', id: 'process' },
-    { name: 'Portfolio', href: '#portfolio', id: 'portfolio' },
-    { name: 'Contact', href: '#contact', id: 'contact', isExternal: true },
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (headerRef.current && !headerRef.current.contains(e.target)) {
+        setActiveDropdown(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const solutionsItems = [
+    { title: 'Web Development', desc: 'High-performance platforms & apps', href: '#services', icon: Globe },
+    { title: 'Mobile Applications', desc: 'iOS & Android native touch UX', href: '#services', icon: Smartphone },
+    { title: 'Cloud & Infrastructure', desc: 'Resilient cloud architecture & CI/CD', href: '#services', icon: Cloud },
+    { title: 'E-Commerce Solutions', desc: 'Sub-second headless checkouts', href: '#services', icon: ShoppingBag },
+    { title: 'Brand Identity', desc: 'Design systems & typography', href: '#services', icon: Palette },
+    { title: 'Digital Growth & SEO', desc: 'Performance marketing & conversion', href: '#services', icon: BarChart3 },
   ];
+
+  const companyItems = [
+    { title: 'About Rajlux', desc: 'Our ethos, standards & engineering philosophy', href: '#about' },
+    { title: 'Why Choose Us', desc: 'Lifetime support & explicit SLA guarantees', href: '#why-us' },
+    { title: 'Our Methodology', desc: 'Linear 4-phase agile delivery framework', href: '#process' },
+    { title: 'Selected Works', desc: 'Case studies, web and mobile showcase', href: '#portfolio' },
+    { title: 'Government Certification', desc: 'MSME registered & verified credentials', href: '#certification' },
+  ];
+
+  const handleNavClick = (href) => {
+    setActiveDropdown(null);
+    setDrawerOpen(false);
+    const target = document.querySelector(href);
+    if (target) {
+      if (window.__lenis) {
+        window.__lenis.scrollTo(target, { offset: -70, duration: 1.2 });
+      } else {
+        target.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
 
   return (
     <>
-      {/* Top Notice Bar */}
-      <div className="top-notice" role="banner">
-        <div className="container">
-          <div className="notice-inner">
-            <span className="pulse-dot" aria-hidden="true"></span>
-            <span>Accepting select client partnerships for Q2/Q3 2025.</span>
-            <a href="#contact" className="notice-link">Schedule a consultation →</a>
+      {/* EatRoutes-Style Minimalist Technical Navbar */}
+      <header className={`eatroutes-header ${scrolled ? 'scrolled' : ''}`} ref={headerRef}>
+        <div className="eatroutes-header-inner">
+
+          {/* Left: Emblem Logo + Wordmark + Subtitle */}
+          <a
+            href="#home"
+            className="eatroutes-logo-wrap"
+            onClick={(e) => { e.preventDefault(); handleNavClick('#home'); }}
+            aria-label="Rajlux Home"
+          >
+            <img src="/logo-emblem.png" alt="Rajlux Emblem" className="eatroutes-emblem" />
+            <div className="eatroutes-brand-text">
+              <span className="eatroutes-brand-name">RAJLUX</span>
+              <span className="eatroutes-brand-sub">TRANSPARENCY, SPEED & EXCELLENCE</span>
+            </div>
+          </a>
+
+          {/* Right: Solutions ˇ, Company ˇ & Minimalist Hamburger Menu */}
+          <div className="eatroutes-nav-right">
+            
+            {/* Solutions Dropdown */}
+            <div
+              className="eatroutes-nav-item"
+              onMouseEnter={() => setActiveDropdown('solutions')}
+              onMouseLeave={() => setActiveDropdown(null)}
+            >
+              <button
+                type="button"
+                className={`eatroutes-nav-btn ${activeDropdown === 'solutions' ? 'active' : ''}`}
+                onClick={() => setActiveDropdown(activeDropdown === 'solutions' ? null : 'solutions')}
+                aria-expanded={activeDropdown === 'solutions'}
+              >
+                <span>Solutions</span>
+                <ChevronDown
+                  size={14}
+                  className={`eatroutes-chevron ${activeDropdown === 'solutions' ? 'open' : ''}`}
+                />
+              </button>
+
+              <AnimatePresence>
+                {activeDropdown === 'solutions' && (
+                  <motion.div
+                    className="eatroutes-dropdown-panel solutions-panel"
+                    initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 6, scale: 0.98 }}
+                    transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                  >
+                    <div className="eatroutes-dropdown-grid">
+                      {solutionsItems.map((item, idx) => {
+                        const Icon = item.icon;
+                        return (
+                          <a
+                            key={idx}
+                            href={item.href}
+                            className="eatroutes-dropdown-link"
+                            onClick={(e) => { e.preventDefault(); handleNavClick(item.href); }}
+                          >
+                            <span className="eatroutes-link-icon">
+                              <Icon size={16} />
+                            </span>
+                            <div className="eatroutes-link-info">
+                              <span className="eatroutes-link-title">{item.title}</span>
+                              <span className="eatroutes-link-desc">{item.desc}</span>
+                            </div>
+                          </a>
+                        );
+                      })}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Company Dropdown */}
+            <div
+              className="eatroutes-nav-item"
+              onMouseEnter={() => setActiveDropdown('company')}
+              onMouseLeave={() => setActiveDropdown(null)}
+            >
+              <button
+                type="button"
+                className={`eatroutes-nav-btn ${activeDropdown === 'company' ? 'active' : ''}`}
+                onClick={() => setActiveDropdown(activeDropdown === 'company' ? null : 'company')}
+                aria-expanded={activeDropdown === 'company'}
+              >
+                <span>Company</span>
+                <ChevronDown
+                  size={14}
+                  className={`eatroutes-chevron ${activeDropdown === 'company' ? 'open' : ''}`}
+                />
+              </button>
+
+              <AnimatePresence>
+                {activeDropdown === 'company' && (
+                  <motion.div
+                    className="eatroutes-dropdown-panel company-panel"
+                    initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 6, scale: 0.98 }}
+                    transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                  >
+                    <div className="eatroutes-dropdown-list">
+                      {companyItems.map((item, idx) => (
+                        <a
+                          key={idx}
+                          href={item.href}
+                          className="eatroutes-dropdown-link"
+                          onClick={(e) => { e.preventDefault(); handleNavClick(item.href); }}
+                        >
+                          <div className="eatroutes-link-info">
+                            <span className="eatroutes-link-title">{item.title}</span>
+                            <span className="eatroutes-link-desc">{item.desc}</span>
+                          </div>
+                          <ArrowRight size={13} className="eatroutes-arrow" />
+                        </a>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* EatRoutes Minimalist 3-Line Hamburger Menu Toggle */}
+            <button
+              type="button"
+              className={`eatroutes-burger ${drawerOpen ? 'open' : ''}`}
+              onClick={() => {
+                setActiveDropdown(null);
+                setDrawerOpen(!drawerOpen);
+              }}
+              aria-label="Toggle Navigation Menu"
+              aria-expanded={drawerOpen}
+            >
+              <span className="eatroutes-burger-line line-1" />
+              <span className="eatroutes-burger-line line-2" />
+              <span className="eatroutes-burger-line line-3" />
+            </button>
+
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* Agentcard-Inspired Minimalist Technical Navigation Header */}
-      <nav className={`nav-bar ${scrolled ? 'scrolled' : ''}`} id="main-header" aria-label="Primary">
-        {/* Left Cluster: Wordmark + Inline Technical Nav Links */}
-        <div className="nav-left-cluster">
-          <a href="#home" className="wordmark" aria-label="Rajlux Digital Solutions Home">
-            <img 
-              src="/logo-emblem.png" 
-              alt="Rajlux" 
-              className="wordmark-logo" 
-            />
-            <span>Rajlux</span>
-          </a>
-
-          {/* Technical Uppercase Nav Links */}
-          <ul className="nav-links-track" role="menubar">
-            {navLinks.map((link) => (
-              <li key={link.id} role="none">
-                <a
-                  href={link.href}
-                  className={`ac-navlink ${activeSection === link.id ? 'active' : ''}`}
-                  role="menuitem"
-                >
-                  <span>{link.name}</span>
-                  {link.hasDropdown && <span className="ac-arrow" aria-hidden="true">▾</span>}
-                  {link.isExternal && <sup aria-hidden="true">↗</sup>}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Right Action Cluster: Concierge Desk + Agentcard Bracket Button */}
-        <div className="nav-right-cluster">
-          <a href="tel:+916369589185" className="ac-phone-desk" title="Call Concierge Desk">
-            +91 63695 89185
-          </a>
-
-          {/* Iconic Agentcard Signature Bracket Button */}
-          <span className="bkt-frame">
-            <motion.a
-              href="#contact"
-              className="bkt"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <span className="brk" aria-hidden="true">
-                <i className="tl"></i>
-                <i className="tr"></i>
-                <i className="bl"></i>
-                <i className="br"></i>
-              </span>
-              <span className="orn" aria-hidden="true">✦</span>
-              <span>GET STARTED</span>
-              <span className="orn" aria-hidden="true">✦</span>
-            </motion.a>
-          </span>
-
-          {/* Mobile Technical Hamburger Toggle */}
-          <button
-            className={`nav-burger ${mobileMenuOpen ? 'active' : ''}`}
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle navigation menu"
-            aria-expanded={mobileMenuOpen}
-          >
-            <span></span>
-            <span></span>
-            <span></span>
-          </button>
-        </div>
-
-        {/* Mobile Navigation Drawer */}
-        <AnimatePresence>
-          {mobileMenuOpen && (
+      {/* EatRoutes Slide-Out Full Navigation Drawer */}
+      <AnimatePresence>
+        {drawerOpen && (
+          <>
             <motion.div
-              className="ac-mobile-drawer"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.18 }}
+              className="eatroutes-drawer-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setDrawerOpen(false)}
+            />
+            <motion.div
+              className="eatroutes-drawer"
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
             >
-              <ul className="ac-mobile-links">
-                {navLinks.map((link) => (
-                  <li key={link.id} className="ac-mobile-item">
-                    <a
-                      href={link.href}
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      {link.name} {link.isExternal && <sup>↗</sup>}
+              <div className="eatroutes-drawer-top">
+                <div className="eatroutes-drawer-brand">
+                  <img src="/logo-emblem.png" alt="Rajlux" className="eatroutes-emblem-small" />
+                  <span>RAJLUX DIGITAL</span>
+                </div>
+                <button
+                  type="button"
+                  className="eatroutes-drawer-close"
+                  onClick={() => setDrawerOpen(false)}
+                  aria-label="Close menu"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="eatroutes-drawer-body">
+                <div className="eatroutes-drawer-group">
+                  <span className="eatroutes-drawer-label">// Main Sections</span>
+                  <ul className="eatroutes-drawer-links">
+                    <li><a href="#home" onClick={(e) => { e.preventDefault(); handleNavClick('#home'); }}>Home Overview</a></li>
+                    <li><a href="#about" onClick={(e) => { e.preventDefault(); handleNavClick('#about'); }}>About Agency</a></li>
+                    <li><a href="#services" onClick={(e) => { e.preventDefault(); handleNavClick('#services'); }}>Services & Solutions</a></li>
+                    <li><a href="#why-us" onClick={(e) => { e.preventDefault(); handleNavClick('#why-us'); }}>Why Rajlux & Guarantees</a></li>
+                    <li><a href="#process" onClick={(e) => { e.preventDefault(); handleNavClick('#process'); }}>Delivery Framework</a></li>
+                    <li><a href="#portfolio" onClick={(e) => { e.preventDefault(); handleNavClick('#portfolio'); }}>Selected Works</a></li>
+                    <li><a href="#certification" onClick={(e) => { e.preventDefault(); handleNavClick('#certification'); }}>Government Certification</a></li>
+                    <li><a href="#contact" onClick={(e) => { e.preventDefault(); handleNavClick('#contact'); }}>Contact & Consultation</a></li>
+                  </ul>
+                </div>
+
+                <div className="eatroutes-drawer-footer">
+                  <a
+                    href="#contact"
+                    className="eatroutes-drawer-cta"
+                    onClick={(e) => { e.preventDefault(); handleNavClick('#contact'); }}
+                  >
+                    <span>Start Your Project</span>
+                    <ArrowRight size={15} />
+                  </a>
+
+                  <div className="eatroutes-drawer-contacts">
+                    <a href="tel:+916369589185" className="eatroutes-contact-item">
+                      <Phone size={14} />
+                      <span>+91 63695 89185</span>
                     </a>
-                  </li>
-                ))}
-              </ul>
-              <div className="ac-mobile-contact">
-                <a href="tel:+916369589185" style={{ fontFamily: 'var(--font-mono)', fontSize: '0.78rem', color: '#090d16', textDecoration: 'none', letterSpacing: '0.08em' }}>
-                  TEL: +91 63695 89185
-                </a>
-                <a href="mailto:rajlux7733@gmail.com" style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: '#64748b', textDecoration: 'none', letterSpacing: '0.05em' }}>
-                  EMAIL: rajlux7733@gmail.com
-                </a>
+                    <a href="mailto:rajlux7733@gmail.com" className="eatroutes-contact-item">
+                      <Mail size={14} />
+                      <span>rajlux7733@gmail.com</span>
+                    </a>
+                  </div>
+                </div>
               </div>
             </motion.div>
-          )}
-        </AnimatePresence>
-      </nav>
+          </>
+        )}
+      </AnimatePresence>
     </>
   );
 }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
-import { ArrowDown, ArrowUpRight } from 'lucide-react';
+import { motion, useInView, useScroll, useTransform } from 'framer-motion';
+import { ArrowRight, ArrowUpRight, Code2, Layers } from 'lucide-react';
+import { ease } from '../utils/animations';
 
 function CounterNumber({ target, suffix = '' }) {
   const [count, setCount] = useState(0);
@@ -9,146 +10,258 @@ function CounterNumber({ target, suffix = '' }) {
 
   useEffect(() => {
     if (!isInView) return;
-
-    let start = 0;
     const duration = 1600;
     const frameRate = 1000 / 60;
     const totalFrames = Math.round(duration / frameRate);
     let frame = 0;
-
     const timer = setInterval(() => {
       frame++;
       const progress = frame / totalFrames;
-      // easeOutQuad
       const current = Math.round(target * progress * (2 - progress));
       setCount(current);
-
-      if (frame === totalFrames) {
-        setCount(target);
-        clearInterval(timer);
-      }
+      if (frame === totalFrames) { setCount(target); clearInterval(timer); }
     }, frameRate);
-
     return () => clearInterval(timer);
   }, [isInView, target]);
 
-  return (
-    <span ref={ref}>
-      {count}{suffix}
-    </span>
-  );
+  return <span ref={ref}>{count}{suffix}</span>;
 }
 
 export default function Hero() {
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.15,
-        delayChildren: 0.1,
-      },
-    },
-  };
+  const sectionRef = useRef(null);
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start start', 'end start'] });
+  const visualY = useTransform(scrollYProgress, [0, 1], ['0%', '12%']);
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 25 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] },
+  const featureCards = [
+    {
+      icon: <Code2 size={20} strokeWidth={2} />,
+      title: 'Bespoke Software',
+      sub: 'End-to-end custom builds',
+      color: '#eef2ff',
+      iconColor: '#4f46e5',
     },
-  };
+    {
+      icon: <Layers size={20} strokeWidth={2} />,
+      title: 'Brand & Web Design',
+      sub: 'High-conversion platforms',
+      color: '#fdf2f8',
+      iconColor: '#db2777',
+    },
+  ];
 
   return (
-    <section className="hero-section" id="home">
-      <div className="hero-grid-bg grid-lines" aria-hidden="true"></div>
-
+    <section className="metto-hero" id="home" ref={sectionRef}>
       <div className="container">
-        <motion.div
-          className="hero-content"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          {/* Eyebrow Pill */}
-          <motion.div variants={itemVariants} className="hero-eyebrow-pill">
-            <span className="eyebrow-dot" aria-hidden="true"></span>
-            <span>Ultra-Clean Engineering &amp; Creative Direction</span>
-            <span className="eyebrow-divider">/</span>
-            <span className="eyebrow-est">Est. 2025</span>
-          </motion.div>
+        <div className="metto-hero-grid">
 
-          {/* Main Headline */}
-          <motion.h1 variants={itemVariants} className="hero-title">
-            We architect high-impact <br />
-            <span className="gold-gradient-text">digital experiences</span>.
-          </motion.h1>
+          {/* ── LEFT COLUMN ── */}
+          <div className="metto-hero-left">
 
-          {/* Subtitle Narrative */}
-          <motion.p variants={itemVariants} className="hero-desc">
-            Rajlux Digital Solutions Pvt. Ltd. builds robust bespoke software, high-conversion web platforms, and refined brand identities with guaranteed on-time delivery and lifetime support.
-          </motion.p>
-
-          {/* Action CTAs */}
-          <motion.div variants={itemVariants} className="hero-cta-group">
-            <motion.a
-              href="#services"
-              className="btn-primary-hero"
-              id="hero-view-services"
-              whileHover={{ scale: 1.04, y: -2 }}
-              whileTap={{ scale: 0.98 }}
+            {/* Eyebrow label */}
+            <motion.div
+              className="metto-eyebrow"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.55, ease, delay: 0.1 }}
             >
-              <span>View Services</span>
-              <ArrowDown size={16} strokeWidth={2.5} />
-            </motion.a>
-            <motion.a
-              href="#contact"
-              className="btn-secondary-hero"
-              id="hero-consultation-btn"
-              whileHover={{ scale: 1.04, y: -2 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <span>Free Consultation</span>
-              <ArrowUpRight size={16} strokeWidth={2} color="var(--text-secondary)" />
-            </motion.a>
-          </motion.div>
+              <span className="metto-eyebrow-dot" />
+              <span>Ultra-Clean Engineering · Est. 2025</span>
+            </motion.div>
 
-          {/* 4-Metric Statistics Board */}
+            {/* Mixed-weight Headline — Metto style */}
+            <motion.h1
+              className="metto-headline"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.1, delay: 0.2 }}
+            >
+              {/* Line 1 */}
+              <span className="metto-headline-line">
+                <motion.span
+                  className="mh-bold"
+                  initial={{ opacity: 0, y: 22 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.55, ease, delay: 0.25 }}
+                >
+                  We
+                </motion.span>
+                {' '}
+                <motion.span
+                  className="mh-light"
+                  initial={{ opacity: 0, y: 22 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.55, ease, delay: 0.33 }}
+                >
+                  architect
+                </motion.span>
+              </span>
+
+              {/* Line 2 */}
+              <span className="metto-headline-line">
+                <motion.span
+                  className="mh-light"
+                  initial={{ opacity: 0, y: 22 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.55, ease, delay: 0.41 }}
+                >
+                  high-impact
+                </motion.span>
+              </span>
+
+              {/* Line 3 */}
+              <span className="metto-headline-line">
+                <motion.span
+                  className="mh-bold"
+                  initial={{ opacity: 0, y: 22 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.55, ease, delay: 0.49 }}
+                >
+                  digital
+                </motion.span>
+                {' '}
+                <motion.span
+                  className="mh-light"
+                  initial={{ opacity: 0, y: 22 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.55, ease, delay: 0.57 }}
+                >
+                  experiences
+                </motion.span>
+              </span>
+            </motion.h1>
+
+            {/* Sub-description */}
+            <motion.p
+              className="metto-desc"
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.55, ease, delay: 0.68 }}
+            >
+              Rajlux Digital Solutions Pvt. Ltd. builds bespoke software, high-conversion web platforms, and refined brand identities — with guaranteed on-time delivery and lifetime support.
+            </motion.p>
+
+            {/* CTA Button — dark pill */}
+            <motion.div
+              className="metto-cta-row"
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease, delay: 0.78 }}
+            >
+              <motion.a
+                href="#contact"
+                className="metto-btn-primary"
+                id="hero-free-consultation"
+                whileHover={{ scale: 1.04, y: -2 }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ type: 'spring', stiffness: 320, damping: 22 }}
+              >
+                <span>Free Consultation</span>
+                <span className="metto-btn-arrow">
+                  <ArrowRight size={15} strokeWidth={2.5} />
+                </span>
+              </motion.a>
+
+              <motion.a
+                href="#services"
+                className="metto-btn-ghost"
+                id="hero-view-services"
+                whileHover={{ x: 4 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 22 }}
+              >
+                View Services <ArrowUpRight size={14} strokeWidth={2} />
+              </motion.a>
+            </motion.div>
+
+            {/* Feature Mini Cards */}
+            <motion.div
+              className="metto-feature-cards"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease, delay: 0.92 }}
+            >
+              {featureCards.map((card, i) => (
+                <motion.div
+                  key={i}
+                  className="metto-feat-card"
+                  whileHover={{ y: -3, boxShadow: '0 8px 24px rgba(15,23,42,0.09)' }}
+                  transition={{ type: 'spring', stiffness: 280, damping: 20 }}
+                >
+                  <span
+                    className="metto-feat-icon"
+                    style={{ background: card.color, color: card.iconColor }}
+                  >
+                    {card.icon}
+                  </span>
+                  <div className="metto-feat-text">
+                    <strong>{card.title}</strong>
+                    <span>{card.sub}</span>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+
+            {/* Mobile-only inline stats (floating chips hidden on mobile) */}
+            <motion.div
+              className="metto-mobile-stats"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.45, ease, delay: 1.0 }}
+            >
+              {[
+                { value: '5+', label: 'Projects' },
+                { value: '98%', label: 'Satisfaction' },
+                { value: '24/7', label: 'Support' },
+              ].map((s, i) => (
+                <div key={i} className="metto-mobile-stat">
+                  <span className="mms-val">{s.value}</span>
+                  <span className="mms-lbl">{s.label}</span>
+                </div>
+              ))}
+            </motion.div>
+
+          </div>
+
+          {/* ── RIGHT COLUMN — Visual ── */}
           <motion.div
-            variants={itemVariants}
-            className="stats-board"
-            id="stats-board"
-            whileHover={{ y: -3 }}
-            transition={{ duration: 0.3 }}
+            className="metto-hero-right"
+            initial={{ opacity: 0, scale: 0.94 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.85, ease, delay: 0.3 }}
+            style={{ y: visualY }}
           >
-            <div className="stats-grid">
-              <div className="stat-box">
-                <div className="stat-value">
-                  <CounterNumber target={100} suffix="+" />
-                </div>
-                <div className="stat-label">Projects Delivered</div>
-              </div>
-              <div className="stat-box">
-                <div className="stat-value">
-                  <CounterNumber target={98} suffix="%" />
-                </div>
-                <div className="stat-label">Client Satisfaction</div>
-              </div>
-              <div className="stat-box">
-                <div className="stat-value">
-                  <CounterNumber target={3} suffix="+" />
-                </div>
-                <div className="stat-label">Years Experience</div>
-              </div>
-              <div className="stat-box">
-                <div className="stat-value">24/7</div>
-                <div className="stat-label">Dedicated Support</div>
-              </div>
+            {/* Floating stats overlay */}
+            <div className="metto-stat-chips">
+              {[
+                { value: '5+', label: 'Projects' },
+                { value: '98%', label: 'Satisfaction' },
+                { value: '24/7', label: 'Support' },
+              ].map((s, i) => (
+                <motion.div
+                  key={i}
+                  className="metto-stat-chip"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.9 + i * 0.12, duration: 0.4 }}
+                  whileHover={{ scale: 1.06 }}
+                >
+                  <span className="msc-val">{s.value}</span>
+                  <span className="msc-lbl">{s.label}</span>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Visual image */}
+            <div className="metto-visual-wrap">
+              <img
+                src="/hero-visual.png"
+                alt="Digital architecture visual"
+                className="metto-visual-img"
+                draggable="false"
+              />
             </div>
           </motion.div>
 
-        </motion.div>
+        </div>
       </div>
     </section>
   );
