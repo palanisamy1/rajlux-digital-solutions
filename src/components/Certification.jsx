@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ShieldCheck, 
@@ -22,6 +23,26 @@ export default function Certification() {
   const [copied, setCopied] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const regNumber = 'UDYAM-TN-03-0351163';
+
+  // Prevent background scrolling and support ESC key when modal is open
+  useEffect(() => {
+    if (!modalOpen) return;
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setModalOpen(false);
+      }
+    };
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [modalOpen]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(regNumber);
@@ -261,60 +282,64 @@ export default function Certification() {
       </div>
 
       {/* High-Resolution Full-Screen Modal Lightbox */}
-      <AnimatePresence>
-        {modalOpen && (
-          <>
+      {typeof document !== 'undefined' && createPortal(
+        <AnimatePresence>
+          {modalOpen && (
             <motion.div
-              className="cert-modal-backdrop"
+              className="cert-modal-overlay"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
               onClick={() => setModalOpen(false)}
-            />
-            <motion.div
-              className="cert-modal-content"
-              initial={{ opacity: 0, scale: 0.94, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.94, y: 20 }}
-              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
             >
-              <div className="cert-modal-header">
-                <div className="cert-modal-title">
-                  <ShieldCheck size={18} className="cert-modal-icon" />
-                  <span>Udyam Registration Certificate — Government of India</span>
+              <motion.div
+                className="cert-modal-content"
+                initial={{ opacity: 0, scale: 0.95, y: 15 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 15 }}
+                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="cert-modal-header">
+                  <div className="cert-modal-title">
+                    <ShieldCheck size={18} className="cert-modal-icon" />
+                    <span>Udyam Registration Certificate — Government of India</span>
+                  </div>
+                  <div className="cert-modal-actions">
+                    <a
+                      href="/udyam-registration-certificate.pdf"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="cert-modal-btn"
+                    >
+                      <FileText size={14} />
+                      <span>Open PDF</span>
+                    </a>
+                    <button
+                      type="button"
+                      className="cert-modal-close"
+                      onClick={() => setModalOpen(false)}
+                      aria-label="Close certificate modal"
+                    >
+                      <X size={18} />
+                    </button>
+                  </div>
                 </div>
-                <div className="cert-modal-actions">
-                  <a
-                    href="/udyam-registration-certificate.pdf"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="cert-modal-btn"
-                  >
-                    <FileText size={14} />
-                    <span>Open PDF</span>
-                  </a>
-                  <button
-                    type="button"
-                    className="cert-modal-close"
-                    onClick={() => setModalOpen(false)}
-                    aria-label="Close certificate modal"
-                  >
-                    <X size={18} />
-                  </button>
-                </div>
-              </div>
 
-              <div className="cert-modal-body">
-                <img
-                  src="/udyam-certificate.png"
-                  alt="Udyam Registration Certificate Full View"
-                  className="cert-modal-img"
-                />
-              </div>
+                <div className="cert-modal-body">
+                  <img
+                    src="/udyam-certificate.png"
+                    alt="Udyam Registration Certificate Full View"
+                    className="cert-modal-img"
+                  />
+                </div>
+              </motion.div>
             </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
 
     </section>
   );
