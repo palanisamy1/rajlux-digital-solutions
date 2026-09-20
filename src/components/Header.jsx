@@ -77,8 +77,8 @@ export default function Header() {
             </div>
           </a>
 
-          {/* Right: Solutions ˇ, Company ˇ & Minimalist Hamburger Menu */}
-          <div className="eatroutes-nav-right">
+          {/* Center: Main Navigation to cover spaces across desktop screens */}
+          <nav className="eatroutes-nav-center" aria-label="Main Navigation">
             
             {/* Solutions Dropdown */}
             <div
@@ -134,6 +134,48 @@ export default function Header() {
               </AnimatePresence>
             </div>
 
+            {/* Direct Section Links */}
+            <a
+              href="#about"
+              className="eatroutes-nav-link"
+              onClick={(e) => { e.preventDefault(); handleNavClick('#about'); }}
+            >
+              About
+            </a>
+
+            <a
+              href="#services"
+              className="eatroutes-nav-link"
+              onClick={(e) => { e.preventDefault(); handleNavClick('#services'); }}
+            >
+              Services
+            </a>
+
+            <a
+              href="#process"
+              className="eatroutes-nav-link"
+              onClick={(e) => { e.preventDefault(); handleNavClick('#process'); }}
+            >
+              Process
+            </a>
+
+            <a
+              href="#portfolio"
+              className="eatroutes-nav-link"
+              onClick={(e) => { e.preventDefault(); handleNavClick('#portfolio'); }}
+            >
+              Portfolio
+            </a>
+
+            <a
+              href="#certification"
+              className="eatroutes-nav-link eatroutes-cert-nav-link"
+              onClick={(e) => { e.preventDefault(); handleNavClick('#certification'); }}
+            >
+              <span className="eatroutes-cert-badge">MSME</span>
+              <span>Certification</span>
+            </a>
+
             {/* Company Dropdown */}
             <div
               className="eatroutes-nav-item"
@@ -182,6 +224,20 @@ export default function Header() {
                 )}
               </AnimatePresence>
             </div>
+
+          </nav>
+
+          {/* Right Action Cluster */}
+          <div className="eatroutes-nav-right">
+            
+            <a
+              href="#contact"
+              className="eatroutes-cta-btn"
+              onClick={(e) => { e.preventDefault(); handleNavClick('#contact'); }}
+            >
+              <span>Get in Touch</span>
+              <ArrowRight size={13} />
+            </a>
 
             {/* EatRoutes Minimalist 3-Line Hamburger Menu Toggle */}
             <button
